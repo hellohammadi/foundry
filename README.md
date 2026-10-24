@@ -4,6 +4,12 @@
 
 ### 👉 [Try the live demo: foundry-hellohammadi.vercel.app](https://foundry-hellohammadi.vercel.app)
 
+[![Powered by DNotifier](https://img.shields.io/badge/Powered%20by-DNotifier-0278b6?style=for-the-badge)](https://www.dnotifier.com) [![Live demo](https://img.shields.io/badge/Live-demo-38bdf8?style=for-the-badge)](https://foundry-hellohammadi.vercel.app) [![MIT License](https://img.shields.io/badge/License-MIT-0f1720?style=for-the-badge)](LICENSE) [![Hacktoberfest](https://img.shields.io/badge/Hacktoberfest-2026-5a6b7b?style=for-the-badge)](https://hacktoberfest.com)
+
+## About
+
+Foundry is an open-source AI platform that helps people discover their business potential. A team of AI agents, orchestrated with **[DNotifier](https://www.dnotifier.com)** workflows, turns a raw idea into a launch-ready plan: brand names checked live for domains and handles, a unique selling point, a fact-backed social media funnel and ready-to-import automations. For businesses that already exist, it diagnoses the real root cause of problems using an open knowledge base of startup playbooks and builds a prioritised 30-day plan.
+
 Foundry helps founders at both ends of the journey:
 
 - **🚀 Start a business:** share an idea. Agents name it, check whether the domain and social handles are free, find your unique selling point and emotional hook, and plan your launch, social media and automations.
@@ -13,9 +19,9 @@ Built for **Hacktoberfest 2026** · Powered end to end by **[DNotifier](https://
 
 ---
 
-## 🧩 How Foundry uses DNotifier
+## 🧩 How Foundry uses [DNotifier](https://www.dnotifier.com)
 
-| DNotifier feature | Where Foundry uses it |
+| [DNotifier](https://www.dnotifier.com) feature | Where Foundry uses it |
 |---|---|
 | **Multi-agent workflows** (`Workflow`, `defineAgent`, `runAgents`) | Both agent teams run as DNotifier workflows with parallel stages and shared state |
 | **AI pipeline** (`sendAI`) | Every AI call from every agent |
@@ -46,6 +52,14 @@ Built for **Hacktoberfest 2026** · Powered end to end by **[DNotifier](https://
 | 🔔 **Weekly reminders** | One reminder per week of the plan, delivered through DNotifier messaging |
 | 🗂️ **History** | Past reports and reminders, stored per browser through DNotifier |
 
+### 🎨 Designed for founders
+- **Step-by-step reports:** every report is a numbered stepper; select a step and it slides in
+- **Compare cases:** change any input and re-evaluate as Case 2, Case 3…, then compare them side by side with changes highlighted
+- **Dynamic island:** once you scroll past the prompt, a pill under the navbar shows your idea, live agent progress and the result; tap it to edit and re-run
+- **Light and dark mode:** follows your device until you choose, remembered per browser
+- **Founder quotes while you wait:** a new, properly attributed quote every 15 seconds
+- **Pro preview:** pricing plans and locked Pro strategies (payments coming soon, everything is free during Hacktoberfest)
+
 ## 🤖 How it works
 
 ```mermaid
@@ -71,7 +85,7 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the full design.
 2. Answer a couple of the Intake agent's questions (for example "online bakery, free delivery on every order, 20% discount codes") and skip the rest.
 3. Watch the Diagnosis agent search the knowledge base and name the root cause: prices below the true cost per order.
 4. Show the 30-day plan and click **Send me weekly reminders**. They appear in *Your history & reminders*.
-5. Open the **DNotifier dashboard** with the trace ID from the bottom of the report to show every agent step and token usage.
+5. Open the **[DNotifier dashboard](https://app.dnotifier.com)** with the trace ID from the bottom of the report to show every agent step and token usage.
 6. Bonus: switch to **Start a business** and run the chai subscription example to show live domain and handle checks.
 
 ## 🚀 Quick start
@@ -88,9 +102,9 @@ npm run dev
 
 Open <http://localhost:3000>.
 
-> **No credentials? It still works.** Without DNotifier credentials Foundry runs in **demo mode**. Domain and handle checks are real, playbook matching uses keyword search, and reports come from templates. History and reminders need DNotifier.
+> **No credentials? It still works.** Without [DNotifier](https://www.dnotifier.com) credentials Foundry runs in **demo mode**. Domain and handle checks are real, playbook matching uses keyword search, and reports come from templates. History and reminders need DNotifier.
 
-### Get DNotifier credentials
+### Get [DNotifier](https://www.dnotifier.com) credentials
 
 1. Sign in at [dnotifier.com](https://www.dnotifier.com) with Google.
 2. Open **Apps** and create an app.
@@ -110,7 +124,7 @@ The playbooks load into your DNotifier knowledge base automatically on the first
 | `DNOTIFIER_AI_PROVIDER` | `open_ai` | `google_gemini` or `ollama` |
 | `DNOTIFIER_AI_MODEL` | `gpt-4o-mini` | your Gemma 4 model ID |
 
-The default `open_ai` provider is included with DNotifier plans. To use **Gemma 4**, connect the provider in the DNotifier portal under **AI Studio → Providers** (a Google AI Studio key for `google_gemini`, or your Ollama URL for `ollama`), then change the two settings above. No code changes are needed.
+The default `open_ai` provider is included with DNotifier plans. To use **Gemma 4**, connect the provider in the [DNotifier portal](https://app.dnotifier.com) under **AI Studio → Providers** (a Google AI Studio key for `google_gemini`, or your Ollama URL for `ollama`), then change the two settings above. No code changes are needed.
 
 ## 📚 The open playbook knowledge base
 
@@ -180,7 +194,7 @@ Read **[CONTRIBUTING.md](CONTRIBUTING.md)** to get started.
 
 Foundry's code and playbooks are released under the [MIT License](LICENSE).
 
-Foundry depends on the DNotifier SDK (`@dnotifier-realtime/dnotifier`), which is distributed by DNotifier under its own proprietary license and is installed from npm, not included in this repository.
+Foundry depends on the [DNotifier SDK](https://www.npmjs.com/package/@dnotifier-realtime/dnotifier) (`@dnotifier-realtime/dnotifier`), which is distributed by [DNotifier](https://www.dnotifier.com) under its own proprietary license and is installed from npm, not included in this repository.
 
 ---
 
