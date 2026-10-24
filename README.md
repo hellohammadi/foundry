@@ -46,6 +46,9 @@ Built for **Hacktoberfest 2026** · Powered end to end by **[DNotifier](https://
 | 🔔 **Weekly reminders** | One reminder per week of the plan, delivered through DNotifier messaging |
 | 🗂️ **History** | Past reports and reminders, stored per browser through DNotifier |
 
+### ✨ Prompt Coach, built in
+Not sure how to describe your idea or problem? Click **Improve with Prompt Coach** under either input. It scores what you wrote out of 10 against a 7-point rubric, asks 2–4 one-tap questions, and rewrites it into a clearer brief for the agents, explaining every change. It comes from my open-source [Prompt Coach](https://github.com/hellohammadi/prompt-coach) project and runs through DNotifier AI like every other agent (in demo mode it uses the hosted Prompt Coach, powered by Gemma 4).
+
 ## 🤖 How it works
 
 ```mermaid

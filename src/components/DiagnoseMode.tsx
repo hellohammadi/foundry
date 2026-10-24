@@ -4,6 +4,7 @@ import { AgentProgress, applyAgentEvent, DIAGNOSE_AGENTS, initialStatuses } from
 import { DiagnosisView } from "@/components/DiagnosisView";
 import type { IslandData } from "@/components/DynamicIsland";
 import { inputClass } from "@/components/IdeaMode";
+import { PromptCoach } from "@/components/PromptCoach";
 import { postStream } from "@/lib/client";
 import type { DiagnosisReport, QA } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
@@ -205,6 +206,11 @@ export function DiagnoseMode({ userId, onDone, onIsland, anchorRef }: {
               Send
             </button>
           </form>
+        )}
+        {phase === "problem" && (
+          <div className="mt-3">
+            <PromptCoach mode="diagnose" text={draft} userId={userId} onUse={(v) => { setDraft(v); setError(null); }} />
+          </div>
         )}
         {error && <p role="alert" className="mt-2 text-sm text-bad">{error}</p>}
         {phase === "done" && (

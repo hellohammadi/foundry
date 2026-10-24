@@ -2,6 +2,7 @@
 
 import { AgentProgress, applyAgentEvent, IDEA_AGENTS, initialStatuses } from "@/components/AgentProgress";
 import type { IslandData } from "@/components/DynamicIsland";
+import { PromptCoach } from "@/components/PromptCoach";
 import { ReportView } from "@/components/ReportView";
 import { postStream } from "@/lib/client";
 import type { Report } from "@/lib/types";
@@ -98,6 +99,7 @@ export function IdeaMode({ userId, onDone, onIsland, anchorRef }: {
             className={inputClass}
           />
         </label>
+        <PromptCoach mode="idea" text={idea} userId={userId} disabled={running} onUse={(v) => { setIdea(v); setError(null); }} />
         <div className="flex flex-wrap gap-2">
           {EXAMPLES.map((ex) => (
             <button key={ex} type="button" onClick={() => setIdea(ex)} className="rounded-full border border-line px-3 py-1 text-xs text-muted hover:border-accent hover:text-ink">
