@@ -23,7 +23,7 @@ const FLOWS: { mode: Mode; title: string; steps: { name: string; text: string }[
     steps: [
       { name: "Founder agent", text: "Turns your idea into a clear brief" },
       { name: "Brand + Strategy", text: "Names with live domain checks, your USP and emotional hook" },
-      { name: "Social + Tech", text: "Social plan, 14-day calendar, stack and n8n automations" },
+      { name: "Social + Tech", text: "A social funnel backed by real facts, plus stack and n8n automations" },
       { name: "Report agent", text: "An honest potential score and next steps" },
     ],
   },

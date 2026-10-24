@@ -9,7 +9,7 @@ export const IDEA_AGENTS: AgentInfo[] = [
   { id: "founder", name: "Founder", role: "Turns your idea into a brief" },
   { id: "brand", name: "Brand", role: "Names, domains and handles" },
   { id: "strategy", name: "Strategy", role: "USP, story, roadmap and scale" },
-  { id: "social", name: "Social", role: "Platforms, posts and calendar" },
+  { id: "social", name: "Social", role: "Awareness → engagement → conversion" },
   { id: "tech", name: "Tech & Automation", role: "MVP, stack and automations" },
   { id: "report", name: "Report", role: "Scores your business potential" },
 ];

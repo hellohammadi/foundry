@@ -1,0 +1,146 @@
+[
+  {
+    "id": "pew-youtube",
+    "fact": "84% of U.S. adults use YouTube — more than any other platform.",
+    "platforms": ["YouTube"],
+    "region": "US",
+    "source": "Pew Research Center, Americans' Social Media Use 2025",
+    "url": "https://www.pewresearch.org/internet/2025/11/20/americans-social-media-use-2025/",
+    "year": 2025
+  },
+  {
+    "id": "pew-facebook",
+    "fact": "71% of U.S. adults use Facebook, rising to 80% of adults aged 30–49.",
+    "platforms": ["Facebook"],
+    "region": "US",
+    "source": "Pew Research Center, Americans' Social Media Use 2025",
+    "url": "https://www.pewresearch.org/internet/2025/11/20/americans-social-media-use-2025/",
+    "year": 2025
+  },
+  {
+    "id": "pew-instagram",
+    "fact": "Half of U.S. adults use Instagram, including 80% of adults aged 18–29 (vs 19% of those 65+).",
+    "platforms": ["Instagram"],
+    "region": "US",
+    "source": "Pew Research Center, Americans' Social Media Use 2025",
+    "url": "https://www.pewresearch.org/internet/2025/11/20/americans-social-media-use-2025/",
+    "year": 2025
+  },
+  {
+    "id": "pew-tiktok",
+    "fact": "37% of U.S. adults use TikTok, and roughly half of 18–29 year olds use it every day.",
+    "platforms": ["TikTok"],
+    "region": "US",
+    "source": "Pew Research Center, Americans' Social Media Use 2025",
+    "url": "https://www.pewresearch.org/internet/2025/11/20/americans-social-media-use-2025/",
+    "year": 2025
+  },
+  {
+    "id": "pew-daily",
+    "fact": "About half of U.S. adults visit Facebook and YouTube at least once a day.",
+    "platforms": ["Facebook", "YouTube"],
+    "region": "US",
+    "source": "Pew Research Center, Americans' Social Media Use 2025",
+    "url": "https://www.pewresearch.org/internet/2025/11/20/americans-social-media-use-2025/",
+    "year": 2025
+  },
+  {
+    "id": "pew-whatsapp",
+    "fact": "32% of U.S. adults use WhatsApp.",
+    "platforms": ["WhatsApp"],
+    "region": "US",
+    "source": "Pew Research Center, Americans' Social Media Use 2025",
+    "url": "https://www.pewresearch.org/internet/2025/11/20/americans-social-media-use-2025/",
+    "year": 2025
+  },
+  {
+    "id": "pew-reddit",
+    "fact": "26% of U.S. adults use Reddit.",
+    "platforms": ["Reddit"],
+    "region": "US",
+    "source": "Pew Research Center, Americans' Social Media Use 2025",
+    "url": "https://www.pewresearch.org/internet/2025/11/20/americans-social-media-use-2025/",
+    "year": 2025
+  },
+  {
+    "id": "sprout-respond",
+    "fact": "73% of consumers say they'll buy from a competitor if a brand doesn't respond on social media.",
+    "platforms": [],
+    "region": "US, UK, Canada, Australia",
+    "source": "Sprout Social Index 2025 (4,044 consumers)",
+    "url": "https://sproutsocial.com/insights/press/the-days-of-trend-chasing-are-over-new-research-from-sprout-social-reveals-a-third-of-consumers-think-jumping-on-viral-trends-is-embarrassing-for-brands/",
+    "year": 2025
+  },
+  {
+    "id": "sprout-trends",
+    "fact": "A third of consumers think it's embarrassing when brands jump on viral trends.",
+    "platforms": [],
+    "region": "US, UK, Canada, Australia",
+    "source": "Sprout Social Index 2025 (4,044 consumers)",
+    "url": "https://sproutsocial.com/insights/press/the-days-of-trend-chasing-are-over-new-research-from-sprout-social-reveals-a-third-of-consumers-think-jumping-on-viral-trends-is-embarrassing-for-brands/",
+    "year": 2025
+  },
+  {
+    "id": "sprout-original",
+    "fact": "About half of consumers say original content is what makes their favourite brands stand out on social.",
+    "platforms": [],
+    "region": "US, UK, Canada, Australia",
+    "source": "Sprout Social Index 2025 (4,044 consumers)",
+    "url": "https://sproutsocial.com/insights/press/the-days-of-trend-chasing-are-over-new-research-from-sprout-social-reveals-a-third-of-consumers-think-jumping-on-viral-trends-is-embarrassing-for-brands/",
+    "year": 2025
+  },
+  {
+    "id": "sprout-purchase",
+    "fact": "For buying directly on social, TikTok is the top platform for Gen Z (54%) and Millennials (47%); Facebook leads across all consumers (39%).",
+    "platforms": ["TikTok", "Facebook"],
+    "region": "US, UK, Canada, Australia",
+    "source": "Sprout Social Index 2025 (4,044 consumers)",
+    "url": "https://sproutsocial.com/insights/press/the-days-of-trend-chasing-are-over-new-research-from-sprout-social-reveals-a-third-of-consumers-think-jumping-on-viral-trends-is-embarrassing-for-brands/",
+    "year": 2025
+  },
+  {
+    "id": "dr-users",
+    "fact": "There are 5.66 billion social media user identities worldwide — 68.7% of the global population.",
+    "platforms": [],
+    "region": "Global",
+    "source": "DataReportal, Digital 2026 Global Overview Report",
+    "url": "https://datareportal.com/reports/digital-2026-global-overview-report",
+    "year": 2025
+  },
+  {
+    "id": "dr-time",
+    "fact": "Including video platforms like YouTube and TikTok, online adults spend well over 2½ hours a day on social media.",
+    "platforms": ["YouTube", "TikTok"],
+    "region": "Global",
+    "source": "DataReportal, Digital 2026 Global Overview Report (GWI data)",
+    "url": "https://datareportal.com/reports/digital-2026-global-overview-report",
+    "year": 2025
+  },
+  {
+    "id": "dr-multi",
+    "fact": "Online adults use about 6.75 different social platforms each month, so the same people can be reached in several places.",
+    "platforms": [],
+    "region": "Global",
+    "source": "DataReportal, Digital 2026 Global Overview Report (GWI data)",
+    "url": "https://datareportal.com/reports/digital-2026-global-overview-report",
+    "year": 2025
+  },
+  {
+    "id": "dr-discovery",
+    "fact": "More than 30% of adult internet users discover new brands through ads on social platforms.",
+    "platforms": [],
+    "region": "Global",
+    "source": "DataReportal, Digital 2026 Global Overview Report (GWI data)",
+    "url": "https://datareportal.com/reports/digital-2026-global-overview-report",
+    "year": 2025
+  },
+  {
+    "id": "dr-india",
+    "fact": "India has 500 million social media user identities — 34.1% of its population, so there is still large room to grow.",
+    "platforms": [],
+    "region": "India",
+    "source": "DataReportal, Digital 2026: India",
+    "url": "https://datareportal.com/reports/digital-2026-india",
+    "year": 2025
+  }
+]

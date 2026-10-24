@@ -1,5 +1,6 @@
 "use client";
 
+import { ContentPlan, SocialStrategy } from "@/components/SocialView";
 import { Bullets, Panel, Stepper, type Step } from "@/components/Stepper";
 import { download, toIcs, toMarkdown, toN8n } from "@/lib/exports";
 import type { Availability, NameCandidate, Report } from "@/lib/types";
@@ -173,60 +174,22 @@ export function ReportView({ report }: { report: Report }) {
       ),
     },
     {
-      title: "Social media",
-      subtitle: "Platforms, posts and a 14-day calendar",
+      title: "Social strategy",
+      subtitle: "Awareness → engagement → conversion",
+      content: <SocialStrategy social={social} />,
+    },
+    {
+      title: "Content plan",
+      subtitle: "Posts and a 14-day calendar by funnel stage",
       content: (
-        <>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {social.platforms.map((p) => (
-              <Panel key={p.name}>
-                <p className="font-semibold">{p.name} <span className="text-xs font-normal text-muted">· {p.priority}</span></p>
-                <p className="mt-1 text-sm text-muted">{p.why}</p>
-              </Panel>
-            ))}
-          </div>
-          <Panel title="Content pillars">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {social.pillars.map((p) => <p key={p.name} className="text-sm"><strong>{p.name}:</strong> <span className="text-muted">{p.description}</span></p>)}
-            </div>
-          </Panel>
-          <Panel title="Ready-to-use bios">
-            <div className="space-y-2">
-              {social.bios.map((b) => (
-                <div key={b.platform} className="flex items-start justify-between gap-3 rounded-xl border border-line bg-surface p-3 text-sm">
-                  <span><strong>{b.platform}:</strong> {b.bio}</span>
-                  <button onClick={() => copy(`bio-${b.platform}`, b.bio)} className="shrink-0 text-xs text-accent">{copied === `bio-${b.platform}` ? "Copied" : "Copy"}</button>
-                </div>
-              ))}
-            </div>
-          </Panel>
-          <div className="grid gap-3 md:grid-cols-2">
-            {social.posts.map((p, i) => (
-              <Panel key={i}>
-                <p className="text-xs text-muted">{p.platform}</p>
-                <p className="font-medium">{p.hook}</p>
-                <p className="mt-1 text-sm text-muted">{p.caption}</p>
-                <p className="mt-2 text-sm text-accent">{p.hashtags.join(" ")}</p>
-                <button onClick={() => copy(`post-${i}`, `${p.hook}\n\n${p.caption}\n\n${p.hashtags.join(" ")}`)} className="mt-2 text-xs text-accent">
-                  {copied === `post-${i}` ? "Copied" : "Copy post"}
-                </button>
-              </Panel>
-            ))}
-          </div>
-          <Panel title="14-day content calendar">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-              {social.calendar.map((c) => (
-                <div key={c.day} className="rounded-xl border border-line bg-surface p-2.5 text-xs">
-                  <p className="font-semibold text-accent">Day {c.day}</p>
-                  <p className="text-muted">{c.platform} · {c.format}</p>
-                  <p className="mt-1">{c.idea}</p>
-                </div>
-              ))}
-            </div>
-            <button onClick={() => download(`${slug}-content-calendar.ics`, toIcs(report), "text/calendar")} className={`${btn} mt-4`}>Add to my calendar (.ics)</button>
-          </Panel>
-          <Panel title="Viral ideas"><Bullets items={social.viralIdeas} /></Panel>
-        </>
+        <ContentPlan
+          social={social}
+          copied={copied}
+          copy={copy}
+          calendarButton={
+            <button onClick={() => download(`${slug}-content-calendar.ics`, toIcs(report), "text/calendar")} className={btn}>Add to my calendar (.ics)</button>
+          }
+        />
       ),
     },
     {

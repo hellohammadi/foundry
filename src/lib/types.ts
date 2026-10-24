@@ -55,13 +55,43 @@ export type StrategyResult = {
   risks: string[];
 };
 
+// A verified statistic from knowledge/facts — agents cite these by id and never invent numbers.
+export type SocialFact = {
+  id: string;
+  fact: string;
+  platforms: string[];
+  region: string;
+  source: string;
+  url: string;
+  year: number;
+};
+
+export type FunnelStage = "awareness" | "engagement" | "conversion";
+
+export type FunnelPhase = {
+  stage: FunnelStage;
+  goal: string;
+  timeframe: string;
+  audienceMindset: string; // what the customer is thinking at this stage
+  tactics: string[];
+  contentIdeas: { platform: string; format: string; idea: string }[];
+  kpis: { name: string; target: string }[];
+  cta: string;
+};
+
 export type SocialResult = {
-  platforms: { name: string; why: string; priority: "primary" | "secondary" }[];
+  positioning: string;
+  audienceInsight: string;
+  platforms: { name: string; why: string; priority: "primary" | "secondary"; factIds: string[] }[];
+  funnel: FunnelPhase[];
   pillars: { name: string; description: string }[];
   bios: { platform: string; bio: string }[];
-  posts: { platform: string; hook: string; caption: string; hashtags: string[] }[];
-  calendar: { day: number; platform: string; format: string; idea: string }[];
+  posts: { stage: FunnelStage; platform: string; hook: string; caption: string; cta: string; hashtags: string[] }[];
+  calendar: { day: number; stage: FunnelStage; platform: string; format: string; idea: string }[];
   viralIdeas: string[];
+  // Resolved on the server from factIds, so every number shown comes from a cited source.
+  facts: SocialFact[];
+  keyFactIds: string[];
 };
 
 export type Automation = {

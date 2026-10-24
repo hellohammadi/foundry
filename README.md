@@ -33,7 +33,7 @@ Built for **Hacktoberfest 2026** · Powered end to end by **[DNotifier](https://
 | 🎯 **Unique selling point** | Your edge, the competitors you beat, and the gap you fill |
 | ❤️ **Emotional core** | The feeling customers buy, your brand story and tone of voice |
 | 🗺️ **Roadmap + scale plan** | From validation to growth, and the risks to watch |
-| 📣 **Social media strategy** | Platforms, pillars, bios, first posts, a 14-day calendar and viral ideas |
+| 📣 **Social media strategy** | A strategist-style funnel (**Awareness → Engagement → Conversion**) with goals, customer mindset, tactics, KPIs and one call to action per phase, plus funnel-tagged posts and a 14-day calendar. Every statistic is a **verified, sourced fact** (Pew Research, Sprout Social, DataReportal) |
 | ⚙️ **Automation blueprint** | 5 workflows, each **downloadable as an n8n workflow** |
 | 🧮 **Potential score** | An honest 0–100 score with next steps |
 
@@ -117,6 +117,10 @@ The default `open_ai` provider is included with DNotifier plans. To use **Gemma 
 [`knowledge/`](knowledge/) holds plain Markdown playbooks: *sales but no profit*, *cash flow crunch*, *high churn*, *expensive customer acquisition*, *founder burnout*, *first hire*, *no product-market fit* and more. Each lists symptoms, root causes, how to confirm, fixes, a 30-day starter plan and metrics.
 
 **Anyone can add one**, and every new playbook makes every diagnosis smarter. See [knowledge/README.md](knowledge/README.md).
+
+## 📊 Verified facts, not made-up numbers
+
+AI models are known to invent statistics. Foundry doesn't let them. [`knowledge/facts/social-media.json`](knowledge/facts/social-media.json) holds hand-checked facts, each with its source, region, year and link. The Social agent may only cite facts by id, and Foundry resolves those ids, so every number on screen links back to where it came from. Contributors can add facts (with a primary source) to make strategies smarter.
 
 ## 🔍 How the availability checks work
 
