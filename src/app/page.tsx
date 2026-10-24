@@ -1,103 +1,143 @@
-import Image from "next/image";
+"use client";
+
+import { AGENT_INFO, AgentProgress, type AgentStatus } from "@/components/AgentProgress";
+import { ReportView } from "@/components/ReportView";
+import type { AgentId, Report, StreamEvent } from "@/lib/types";
+import { useRef, useState } from "react";
+
+const EXAMPLES = [
+  "A subscription box of home-brewed Indian chai blends for office workers",
+  "Eco-friendly pet grooming van that visits customers at home",
+  "An app that matches retired teachers with kids who need tutoring",
+];
+
+const initialStatuses = () =>
+  Object.fromEntries(AGENT_INFO.map((a) => [a.id, { status: "waiting" }])) as Record<AgentId, AgentStatus>;
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [idea, setIdea] = useState("");
+  const [audience, setAudience] = useState("");
+  const [location, setLocation] = useState("");
+  const [budget, setBudget] = useState("");
+  const [running, setRunning] = useState(false);
+  const [statuses, setStatuses] = useState(initialStatuses);
+  const [report, setReport] = useState<Report | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  function handle(event: StreamEvent) {
+    if (event.type === "agent") {
+      setStatuses((s) => ({ ...s, [event.agent]: { ...s[event.agent], status: event.status } }));
+    } else if (event.type === "log") {
+      setStatuses((s) => ({ ...s, [event.agent]: { ...s[event.agent], log: event.message } }));
+    } else if (event.type === "report") {
+      setReport(event.report);
+    } else if (event.type === "error") {
+      setError(event.message);
+    }
+  }
+
+  async function analyze(e: React.FormEvent) {
+    e.preventDefault();
+    if (idea.trim().length < 10) {
+      setError("Describe your idea in at least 10 characters.");
+      return;
+    }
+    setRunning(true);
+    setError(null);
+    setReport(null);
+    setStatuses(initialStatuses());
+    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea, audience, location, budget }),
+      });
+      if (!res.ok || !res.body) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `Request failed (${res.status})`);
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) if (line.trim()) handle(JSON.parse(line));
+      }
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  const input = "w-full rounded-xl border border-line bg-surface px-4 py-3 outline-none focus:border-accent";
+
+  return (
+    <main className="mx-auto max-w-5xl px-4 py-10 sm:py-16">
+      <header className="mb-10 text-center">
+        <p className="mb-3 inline-block rounded-full border border-line bg-surface px-3 py-1 text-xs text-muted">
+          Open source · Agents powered by DNotifier
+        </p>
+        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+          Discover your <span className="text-accent">business potential</span>
+        </h1>
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-muted">
+          Share your idea. A team of AI agents names it, checks domains and handles, finds your unique edge, and plans
+          your social media and automations.
+        </p>
+      </header>
+
+      <form onSubmit={analyze} className="space-y-4 rounded-2xl border border-line bg-surface p-5 sm:p-6">
+        <label className="block">
+          <span className="mb-2 block font-medium">What&apos;s your business idea?</span>
+          <textarea
+            value={idea}
+            onChange={(e) => { setIdea(e.target.value); setError(null); }}
+            rows={3}
+            placeholder="e.g. A subscription box of home-brewed Indian chai blends for office workers"
+            className={input}
+          />
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {EXAMPLES.map((ex) => (
+            <button key={ex} type="button" onClick={() => setIdea(ex)} className="rounded-full border border-line px-3 py-1 text-xs text-muted hover:border-accent hover:text-ink">
+              {ex}
+            </button>
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        <div className="grid gap-3 sm:grid-cols-3">
+          <input value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="Target customers (optional)" className={input} />
+          <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location (optional)" className={input} />
+          <input value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="Starting budget (optional)" className={input} />
+        </div>
+        {error && <p role="alert" className="text-sm text-bad">{error}</p>}
+        <button
+          type="submit"
+          disabled={running}
+          className="w-full rounded-xl bg-accent px-5 py-3 font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60 dark:text-black sm:w-auto"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+          {running ? "Agents at work…" : "Discover my potential"}
+        </button>
+      </form>
+
+      <div ref={resultsRef} className="mt-8 scroll-mt-6 space-y-5">
+        {(running || report) && <AgentProgress statuses={statuses} />}
+        {report && <ReportView report={report} />}
+      </div>
+
+      <footer className="mt-16 text-center text-sm text-muted">
+        <a href="https://github.com/hellohammadi/foundry" className="underline" target="_blank" rel="noreferrer">
+          Foundry on GitHub
+        </a>{" "}
+        · MIT licensed · Built for Hacktoberfest
       </footer>
-    </div>
+    </main>
   );
 }
