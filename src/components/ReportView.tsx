@@ -1,8 +1,10 @@
 "use client";
 
+import { ProLocked } from "@/components/Pro";
 import { ContentPlan, SocialStrategy } from "@/components/SocialView";
 import { Bullets, Panel, Stepper, type Step } from "@/components/Stepper";
 import { download, toIcs, toMarkdown, toN8n } from "@/lib/exports";
+import { IDEA_PRO } from "@/lib/pro";
 import type { Availability, NameCandidate, Report } from "@/lib/types";
 import { useState } from "react";
 
@@ -247,6 +249,11 @@ export function ReportView({ report }: { report: Report }) {
           <Panel title="Do this week" tone="accent"><Bullets items={potential.nextSteps} /></Panel>
         </div>
       ),
+    },
+    {
+      title: "Pro strategies 🔒",
+      subtitle: "Market, money, competitors and more",
+      content: <ProLocked features={IDEA_PRO} title="Go deeper on this idea" />,
     },
   ];
 

@@ -7,6 +7,7 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
       { label: "Start a business", href: "#app" },
       { label: "Fix my business", href: "#app" },
       { label: "How it works", href: "#how-it-works" },
+      { label: "Pricing", href: "#pricing" },
       { label: "History & reminders", href: "#history" },
     ],
   },

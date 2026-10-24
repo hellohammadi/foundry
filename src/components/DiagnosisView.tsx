@@ -1,7 +1,9 @@
 "use client";
 
+import { ProLocked } from "@/components/Pro";
 import { Bullets, Panel, Stepper, type Step } from "@/components/Stepper";
 import { download } from "@/lib/exports";
+import { DIAGNOSE_PRO } from "@/lib/pro";
 import type { DiagnosisReport } from "@/lib/types";
 import { useState } from "react";
 
@@ -201,6 +203,11 @@ export function DiagnosisView({ report, userId, onReminders }: { report: Diagnos
           </Panel>
         </>
       ),
+    },
+    {
+      title: "Pro deep-dives 🔒",
+      subtitle: "Forecasts, benchmarks and coaching",
+      content: <ProLocked features={DIAGNOSE_PRO} title="Go deeper on this diagnosis" />,
     },
   ];
 

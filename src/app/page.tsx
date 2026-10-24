@@ -7,6 +7,8 @@ import { IdeaMode } from "@/components/IdeaMode";
 import { Inbox } from "@/components/Inbox";
 import { FoundryMark, PoweredByDNotifier } from "@/components/Logo";
 import { Navbar } from "@/components/Navbar";
+import { Pricing } from "@/components/Pro";
+import { Toaster } from "@/components/Toast";
 import { useUserId } from "@/lib/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -193,12 +195,15 @@ export default function Home() {
           </div>
         </section>
 
+        <Pricing />
+
         <div id="history" className="scroll-mt-20">
           <Inbox userId={userId} refreshKey={refreshKey} />
         </div>
       </main>
 
       <Footer />
+      <Toaster />
     </div>
   );
 }
