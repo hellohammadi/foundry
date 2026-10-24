@@ -24,6 +24,9 @@ npm run build
 
 ## Good first contributions
 
+### Write a playbook (no coding needed)
+Foundry's Diagnosis agent is only as smart as its knowledge base. Add a Markdown playbook for a startup problem you understand to [`knowledge/`](knowledge/), following the format in [knowledge/README.md](knowledge/README.md). It's picked up automatically on the next diagnosis.
+
 ### Add a social platform (≈15 lines)
 Open `src/lib/checks/handles.ts` and add an entry to `PLATFORMS`:
 
@@ -45,8 +48,8 @@ Only add a `check()` if you've confirmed it reliably tells "taken" from "availab
 1. Create `src/lib/agents/<name>.ts` that exports an `Agent` (copy `strategy.ts` as a template).
 2. Write a focused system prompt with an explicit JSON schema, plus a demo-mode template.
 3. Add its output type to `src/lib/types.ts` and to `AgentId`.
-4. Put it in a stage in `STAGES` (`src/lib/agents/pipeline.ts`). Agents in the same stage run in parallel.
-5. Add it to `AGENT_INFO` in `src/components/AgentProgress.tsx` and render its section in `ReportView.tsx`.
+4. Put it in a stage of `IDEA_TEAM` (`src/lib/agents/pipeline.ts`) or `DIAGNOSE_TEAM` (`src/lib/agents/diagnose.ts`). Agents in the same stage run in parallel.
+5. Add it to `IDEA_AGENTS` or `DIAGNOSE_AGENTS` in `src/components/AgentProgress.tsx` and render its section in `ReportView.tsx`.
 
 ### Other ideas
 - Country-specific business registration steps

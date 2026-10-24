@@ -104,11 +104,55 @@ export type Report = {
   };
 };
 
-export type AgentId = "founder" | "brand" | "strategy" | "social" | "tech" | "report";
+// ── "Fix my business" mode ─────────────────────────────────────────────
 
-// Events streamed from /api/analyze as newline-delimited JSON.
+export type QA = { question: string; answer: string };
+
+export type DiagnoseInput = {
+  problem: string;
+  answers: QA[];
+};
+
+export type PlaybookHit = { slug: string; title: string; topic: string; score?: number };
+
+export type DiagnosisResult = {
+  symptoms: string[];
+  rootCause: string;
+  explanation: string;
+  confidence: "high" | "medium" | "low";
+  secondaryIssues: string[];
+  evidence: { playbook: string; insight: string }[];
+};
+
+export type ActionPlan = {
+  goal: string;
+  quickWins: string[];
+  weeks: { week: number; focus: string; tasks: { task: string; priority: "high" | "medium" | "low"; outcome: string }[] }[];
+  metrics: { name: string; target: string }[];
+};
+
+export type DiagnosisReport = {
+  input: DiagnoseInput;
+  sources: PlaybookHit[];
+  diagnosis: DiagnosisResult;
+  plan: ActionPlan;
+  meta: Report["meta"];
+};
+
+// Items stored for a user through DNotifier messaging (history + reminders).
+export type InboxItem =
+  | { kind: "report"; id: string; at: number; mode: "idea" | "diagnose"; title: string; summary: string }
+  | { kind: "reminder"; id: string; at: number; due: string; title: string; tasks: string[] };
+
+// An inbox item before DNotifier assigns its id and timestamp.
+export type NewInboxItem = InboxItem extends infer T ? (T extends InboxItem ? Omit<T, "id" | "at"> : never) : never;
+
+export type AgentId = "founder" | "brand" | "strategy" | "social" | "tech" | "report" | "diagnosis" | "solution";
+
+// Events streamed from /api/analyze and /api/diagnose as newline-delimited JSON.
 export type StreamEvent =
   | { type: "agent"; agent: AgentId; status: "running" | "done" | "error"; message?: string }
   | { type: "log"; agent: AgentId; message: string }
   | { type: "report"; report: Report }
+  | { type: "diagnosis"; report: DiagnosisReport }
   | { type: "error"; message: string };

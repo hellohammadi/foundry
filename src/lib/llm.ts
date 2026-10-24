@@ -30,6 +30,8 @@ export function getNotifier(): Promise<DNotifier | null> {
       secret: aiConfig.secret,
       transport: "http",
       userId: aiConfig.userId,
+      // Sends AI session and token usage to the DNotifier logs dashboard.
+      logs: true,
       url: undefined,
       WebSocketImpl: undefined,
       onConnected: () => {},
