@@ -1,5 +1,6 @@
 "use client";
 
+import { Bullets, Panel, Stepper, type Step } from "@/components/Stepper";
 import { download } from "@/lib/exports";
 import type { DiagnosisReport } from "@/lib/types";
 import { useState } from "react";
@@ -9,6 +10,8 @@ const PRIORITY = {
   medium: "bg-accent-soft text-accent",
   low: "border border-line text-muted",
 };
+
+const CONFIDENCE = { high: 90, medium: 60, low: 30 };
 
 function toMarkdown(r: DiagnosisReport): string {
   const { diagnosis: d, plan: p } = r;
@@ -69,111 +72,161 @@ export function DiagnosisView({ report, userId, onReminders }: { report: Diagnos
     }
   }
 
+  const steps: Step[] = [
+    {
+      title: "Root cause",
+      subtitle: "What's really going on",
+      content: (
+        <>
+          <Panel tone="accent">
+            <p className="text-sm text-muted">The root cause</p>
+            <p className="mt-1 text-xl font-semibold">{d.rootCause}</p>
+            <p className="mt-3 leading-relaxed">{d.explanation}</p>
+            <div className="mt-4">
+              <div className="mb-1 flex justify-between text-xs text-muted"><span>Confidence</span><span className="capitalize">{d.confidence}</span></div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-line" aria-hidden="true">
+                <div className="h-full rounded-full bg-accent" style={{ width: `${CONFIDENCE[d.confidence] ?? 50}%` }} />
+              </div>
+            </div>
+          </Panel>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Panel title="What you're seeing (symptoms)"><Bullets items={d.symptoms} /></Panel>
+            <Panel title="Also watch"><Bullets items={d.secondaryIssues} /></Panel>
+          </div>
+        </>
+      ),
+    },
+    {
+      title: "Evidence",
+      subtitle: "What the playbooks say",
+      content: (
+        <>
+          <p className="text-muted">
+            The Diagnosis agent used DNotifier semantic search over Foundry&apos;s open playbook knowledge base and matched these
+            playbooks:
+          </p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {sources.map((s, i) => (
+              <Panel key={s.slug} tone={i === 0 ? "accent" : "plain"}>
+                <p className="text-xs uppercase tracking-wider text-muted">{i === 0 ? "Best match" : `Match ${i + 1}`} · {s.topic}</p>
+                <p className="mt-1 font-semibold">{s.title}</p>
+              </Panel>
+            ))}
+          </div>
+          <Panel title="Key insights">
+            <ul className="space-y-3">
+              {d.evidence.map((e, i) => (
+                <li key={i}><strong>{e.playbook}:</strong> <span className="text-muted">{e.insight}</span></li>
+              ))}
+            </ul>
+          </Panel>
+        </>
+      ),
+    },
+    {
+      title: "30-day plan",
+      subtitle: "Quick wins, then week by week",
+      content: (
+        <>
+          <Panel tone="accent">
+            <p className="text-sm text-muted">Goal</p>
+            <p className="mt-1 text-lg font-medium">{p.goal}</p>
+          </Panel>
+          <Panel title="Quick wins (next 48 hours)">
+            <ul className="space-y-2">
+              {p.quickWins.map((q, i) => (
+                <li key={i}><label className="flex gap-2.5"><input type="checkbox" className="mt-1 accent-[var(--accent)]" />{q}</label></li>
+              ))}
+            </ul>
+          </Panel>
+          <ol className="relative space-y-4 border-l-2 border-line pl-6">
+            {p.weeks.map((w) => (
+              <li key={w.week} className="relative">
+                <span className="absolute -left-[35px] flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-semibold text-accent-ink">{w.week}</span>
+                <Panel>
+                  <p className="text-xs text-muted">Week {w.week}</p>
+                  <p className="mb-3 font-semibold">{w.focus}</p>
+                  <ul className="space-y-3">
+                    {w.tasks.map((t, i) => (
+                      <li key={i} className="text-sm">
+                        <label className="flex gap-2.5">
+                          <input type="checkbox" className="mt-1 accent-[var(--accent)]" />
+                          <span>
+                            <span className={`mr-1.5 rounded px-1.5 py-0.5 text-xs ${PRIORITY[t.priority] ?? PRIORITY.low}`}>{t.priority}</span>
+                            {t.task}
+                            <span className="block text-xs text-muted">→ {t.outcome}</span>
+                          </span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </Panel>
+              </li>
+            ))}
+          </ol>
+        </>
+      ),
+    },
+    {
+      title: "Track & remind",
+      subtitle: "Measure progress and stay on track",
+      content: (
+        <>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {p.metrics.map((m) => (
+              <Panel key={m.name}>
+                <p className="font-semibold">{m.name}</p>
+                <p className="mt-1 text-sm text-muted">{m.target}</p>
+              </Panel>
+            ))}
+          </div>
+          <Panel tone="accent" title="Weekly reminders">
+            <p className="text-sm">
+              Get one reminder per week of your plan, delivered through DNotifier messaging. They show up in{" "}
+              <a href="#history" className="underline">Your history &amp; reminders</a>.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                onClick={sendReminders}
+                disabled={!userId || reminders === "sending" || reminders === "sent"}
+                className="rounded-xl bg-accent px-4 py-2 text-sm font-medium text-accent-ink disabled:opacity-60"
+              >
+                {reminders === "sent" ? "Reminders set ✓" : reminders === "sending" ? "Setting…" : "Send me weekly reminders"}
+              </button>
+              <button onClick={() => download("foundry-diagnosis.md", toMarkdown(report), "text/markdown")} className="rounded-xl border border-line bg-surface px-4 py-2 text-sm hover:border-accent">
+                Download plan (.md)
+              </button>
+            </div>
+            {!["idle", "sending", "sent"].includes(reminders) && <p role="alert" className="mt-2 text-sm text-bad">{reminders}</p>}
+          </Panel>
+        </>
+      ),
+    },
+  ];
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {meta.mode === "demo" && (
-        <p className="rounded-xl border border-line bg-accent-soft p-3 text-sm">
+        <p className="rounded-2xl border border-line bg-accent-soft p-3 text-sm">
           <strong>Demo mode:</strong> this diagnosis comes straight from the matching playbook. Add DNotifier credentials for a
           diagnosis tailored to your answers (see the README).
         </p>
       )}
-
-      <section className="rounded-2xl border border-accent bg-surface p-6">
-        <p className="text-sm text-muted">Root cause · {d.confidence} confidence</p>
-        <h2 className="mt-1 text-2xl font-semibold">{d.rootCause}</h2>
-        <p className="mt-3">{d.explanation}</p>
-      </section>
-
-      <div className="grid gap-5 md:grid-cols-2">
-        <section className="rounded-2xl border border-line bg-surface p-5">
-          <h3 className="mb-3 font-semibold">What you&apos;re seeing (symptoms)</h3>
-          <ul className="space-y-1.5">{d.symptoms.map((s, i) => <li key={i} className="flex gap-2"><span className="text-accent">•</span>{s}</li>)}</ul>
-        </section>
-        <section className="rounded-2xl border border-line bg-surface p-5">
-          <h3 className="mb-3 font-semibold">Also watch</h3>
-          <ul className="space-y-1.5">{d.secondaryIssues.map((s, i) => <li key={i} className="flex gap-2"><span className="text-accent">•</span>{s}</li>)}</ul>
-        </section>
-      </div>
-
-      <section className="rounded-2xl border border-line bg-surface p-5">
-        <h3 className="mb-1 font-semibold">Evidence from the knowledge base</h3>
-        <p className="mb-3 text-sm text-muted">
-          Found with semantic search over Foundry&apos;s open playbooks
-          {sources.length ? `: ${sources.map((s) => s.title).join(", ")}` : ""}.
-        </p>
-        <ul className="space-y-2">
-          {d.evidence.map((e, i) => (
-            <li key={i} className="text-sm"><strong>{e.playbook}:</strong> <span className="text-muted">{e.insight}</span></li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold">Your 30-day plan</h2>
-            <p className="text-muted">{p.goal}</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={sendReminders}
-              disabled={!userId || reminders === "sending" || reminders === "sent"}
-              className="rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-60 dark:text-black"
-            >
-              {reminders === "sent" ? "Reminders set ✓" : reminders === "sending" ? "Setting…" : "Send me weekly reminders"}
-            </button>
-            <button onClick={() => download("foundry-diagnosis.md", toMarkdown(report), "text/markdown")} className="rounded-lg border border-line px-3 py-2 text-sm hover:border-accent">
-              Download (.md)
-            </button>
-          </div>
-        </div>
-        {!["idle", "sending", "sent"].includes(reminders) && <p role="alert" className="mt-2 text-sm text-bad">{reminders}</p>}
-
-        <h3 className="mt-5 font-medium">Quick wins (next 48 hours)</h3>
-        <ul className="mt-2 space-y-1.5">
-          {p.quickWins.map((q, i) => (
-            <li key={i}><label className="flex gap-2"><input type="checkbox" className="mt-1 accent-[var(--accent)]" />{q}</label></li>
-          ))}
-        </ul>
-
-        <ol className="mt-5 grid gap-4 md:grid-cols-2">
-          {p.weeks.map((w) => (
-            <li key={w.week} className="rounded-xl border border-line p-4">
-              <p className="text-sm text-muted">Week {w.week}</p>
-              <p className="mb-3 font-medium">{w.focus}</p>
-              <ul className="space-y-2.5">
-                {w.tasks.map((t, i) => (
-                  <li key={i} className="text-sm">
-                    <label className="flex gap-2">
-                      <input type="checkbox" className="mt-1 accent-[var(--accent)]" />
-                      <span>
-                        <span className={`mr-1.5 rounded px-1.5 py-0.5 text-xs ${PRIORITY[t.priority] ?? PRIORITY.low}`}>{t.priority}</span>
-                        {t.task}
-                        <span className="block text-xs text-muted">→ {t.outcome}</span>
-                      </span>
-                    </label>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ol>
-
-        <h3 className="mt-5 font-medium">Track these</h3>
-        <div className="mt-2 grid gap-2 sm:grid-cols-3">
-          {p.metrics.map((m) => (
-            <div key={m.name} className="rounded-lg border border-line p-3 text-sm">
-              <p className="font-medium">{m.name}</p>
-              <p className="text-muted">{m.target}</p>
+      <Stepper
+        steps={steps}
+        heading={
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-sm text-muted">Diagnosis report</p>
+              <h2 className="text-2xl font-semibold tracking-tight">{report.input.problem}</h2>
             </div>
-          ))}
-        </div>
-      </section>
-
-      <p className="text-center text-xs text-muted">
-        Generated {meta.mode === "live" ? `by ${meta.model}` : "in demo mode"} · {new Date(meta.generatedAt).toLocaleString()}
-        {meta.executionId && <> · DNotifier trace <span className="font-mono">{meta.executionId}</span></>}
-      </p>
+            <p className="text-xs text-muted">
+              {meta.mode === "live" ? meta.model : "Demo mode"}
+              {meta.executionId && <><br />DNotifier trace <span className="font-mono">{meta.executionId}</span></>}
+            </p>
+          </div>
+        }
+      />
     </div>
   );
 }

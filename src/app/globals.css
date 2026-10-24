@@ -8,6 +8,7 @@
   --muted: #78716c;
   --accent: #c2410c;
   --accent-soft: #fff1e6;
+  --accent-ink: #ffffff;
   --ok: #15803d;
   --ok-soft: #e8f6ec;
   --bad: #b91c1c;
@@ -23,6 +24,7 @@
     --muted: #a8a29e;
     --accent: #fb923c;
     --accent-soft: #2a1a0f;
+    --accent-ink: #1c1917;
     --ok: #4ade80;
     --ok-soft: #12261a;
     --bad: #f87171;
@@ -38,6 +40,7 @@
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
   --color-bad: var(--bad);
@@ -58,4 +61,24 @@ body {
 
 .pulse-dot {
   animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Step panels slide in when selected; children follow in a short stagger. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes step-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+  .step-in > * {
+    animation: step-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .step-in > *:nth-child(2) { animation-delay: 0.06s; }
+  .step-in > *:nth-child(3) { animation-delay: 0.12s; }
+  .step-in > *:nth-child(4) { animation-delay: 0.18s; }
+  .step-in > *:nth-child(5) { animation-delay: 0.24s; }
+  .step-in > *:nth-child(n + 6) { animation-delay: 0.3s; }
 }

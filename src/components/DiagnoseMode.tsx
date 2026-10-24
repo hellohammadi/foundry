@@ -125,7 +125,7 @@ export function DiagnoseMode({ userId, onDone }: { userId: string | null; onDone
             <div key={i} className={`flex ${m.from === "you" ? "justify-end" : "justify-start"}`}>
               <p
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
-                  m.from === "you" ? "rounded-br-sm bg-accent text-white dark:text-black" : "rounded-bl-sm border border-line bg-bg"
+                  m.from === "you" ? "rounded-br-sm bg-accent text-accent-ink" : "rounded-bl-sm border border-line bg-bg"
                 }`}
               >
                 {m.text}
@@ -163,7 +163,7 @@ export function DiagnoseMode({ userId, onDone }: { userId: string | null; onDone
                 Skip
               </button>
             )}
-            <button type="submit" className="shrink-0 rounded-xl bg-accent px-5 font-medium text-white hover:opacity-90 dark:text-black">
+            <button type="submit" className="shrink-0 rounded-xl bg-accent px-5 font-medium text-accent-ink hover:opacity-90">
               Send
             </button>
           </form>
@@ -177,7 +177,7 @@ export function DiagnoseMode({ userId, onDone }: { userId: string | null; onDone
       </section>
 
       <div className="mt-8 space-y-5">
-        {(phase === "running" || report) && <AgentProgress agents={DIAGNOSE_AGENTS} statuses={statuses} />}
+        {(phase === "running" || report) && <AgentProgress agents={DIAGNOSE_AGENTS} statuses={statuses} finished={phase === "done"} />}
         {report && <DiagnosisView report={report} userId={userId} onReminders={onDone} />}
       </div>
     </>

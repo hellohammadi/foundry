@@ -26,7 +26,19 @@ export function initialStatuses(agents: AgentInfo[]): Statuses {
   return Object.fromEntries(agents.map((a) => [a.id, { status: "waiting" }]));
 }
 
-export function AgentProgress({ agents, statuses }: { agents: AgentInfo[]; statuses: Statuses }) {
+export function AgentProgress({ agents, statuses, finished = false }: { agents: AgentInfo[]; statuses: Statuses; finished?: boolean }) {
+  if (finished) {
+    // Once the report is ready, shrink the team to a single summary line.
+    return (
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-3 text-sm">
+        <span className="text-ok">✓</span>
+        <span className="font-medium">{agents.length} agents finished</span>
+        {agents.map((a) => (
+          <span key={a.id} className="rounded-full border border-line px-2 py-0.5 text-xs text-muted">{a.name}</span>
+        ))}
+      </div>
+    );
+  }
   return (
     <section aria-label="Agent progress" className="rounded-2xl border border-line bg-surface p-5">
       <h2 className="mb-4 text-sm font-medium text-muted">Your agent team is working</h2>

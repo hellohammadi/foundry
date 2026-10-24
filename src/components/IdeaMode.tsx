@@ -79,14 +79,14 @@ export function IdeaMode({ userId, onDone }: { userId: string | null; onDone: ()
         <button
           type="submit"
           disabled={running}
-          className="w-full rounded-xl bg-accent px-5 py-3 font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60 dark:text-black sm:w-auto"
+          className="w-full rounded-xl bg-accent px-5 py-3 font-medium text-accent-ink transition-opacity hover:opacity-90 disabled:opacity-60 sm:w-auto"
         >
           {running ? "Agents at work…" : "Discover my potential"}
         </button>
       </form>
 
       <div ref={resultsRef} className="mt-8 scroll-mt-6 space-y-5">
-        {(running || report) && <AgentProgress agents={IDEA_AGENTS} statuses={statuses} />}
+        {(running || report) && <AgentProgress agents={IDEA_AGENTS} statuses={statuses} finished={!running && Boolean(report)} />}
         {report && <ReportView report={report} />}
       </div>
     </>
