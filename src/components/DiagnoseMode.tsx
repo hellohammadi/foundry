@@ -1,11 +1,13 @@
 "use client";
 
 import { AgentProgress, applyAgentEvent, DIAGNOSE_AGENTS, initialStatuses } from "@/components/AgentProgress";
+import { CaseBar, useCases } from "@/components/Cases";
+import { DiagnoseCompare, type DiagnoseCase } from "@/components/DiagnoseCompare";
 import { DiagnosisView } from "@/components/DiagnosisView";
 import type { IslandData } from "@/components/DynamicIsland";
 import { inputClass } from "@/components/IdeaMode";
 import { postStream } from "@/lib/client";
-import type { DiagnosisReport, QA } from "@/lib/types";
+import type { QA } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 
 const EXAMPLES = [
@@ -33,7 +35,12 @@ export function DiagnoseMode({ userId, onDone, onIsland, anchorRef }: {
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [statuses, setStatuses] = useState(() => initialStatuses(DIAGNOSE_AGENTS));
-  const [report, setReport] = useState<DiagnosisReport | null>(null);
+  // Every diagnosis becomes a case; earlier ones are kept for comparison.
+  const { cases, add, remove } = useCases<DiagnoseCase>("foundry-diagnose-cases");
+  const [selected, setSelected] = useState<string | null>(null);
+  const current = cases.find((c) => c.id === selected) ?? (selected === "compare" ? null : cases.at(-1));
+  const comparing = selected === "compare" && cases.length >= 2;
+  const report = current?.data.report ?? null;
   const [lastLog, setLastLog] = useState<string | undefined>();
   const chatBox = useRef<HTMLDivElement>(null);
 
@@ -74,7 +81,7 @@ export function DiagnoseMode({ userId, onDone, onIsland, anchorRef }: {
     setStatuses(initialStatuses(DIAGNOSE_AGENTS));
     try {
       await postStream("/api/diagnose", { problem, answers: allAnswers, userId }, (event) => {
-        if (event.type === "diagnosis") setReport(event.report);
+        if (event.type === "diagnosis") setSelected(add({ report: event.report }).id);
         else if (event.type === "error") setError(event.message);
         else {
           if (event.type === "log") setLastLog(event.message);
@@ -124,8 +131,13 @@ export function DiagnoseMode({ userId, onDone, onIsland, anchorRef }: {
     setProblem("");
     setQuestions([]);
     setAnswers([]);
-    setReport(null);
     setError(null);
+  }
+
+  // Same problem, fresh answers: the new run becomes another case to compare.
+  function rediagnose(text: string) {
+    restart();
+    void startIntake(text);
   }
 
   const canType = phase === "problem" || phase === "asking";
@@ -148,13 +160,13 @@ export function DiagnoseMode({ userId, onDone, onIsland, anchorRef }: {
         onSkip: () => answer(""),
       });
     } else if (phase === "done") {
-      onIsland({ ...base, status: "done", result: report ? `Root cause: ${report.diagnosis.rootCause}` : undefined, placeholder: "Describe another problem…", submitLabel: "Diagnose", onSubmit: (t) => { restart(); if (t.length >= 10) void startIntake(t); } });
+      onIsland({ ...base, status: "done", result: report ? `Case ${current?.n} · Root cause: ${report.diagnosis.rootCause}` : undefined, placeholder: "Describe another problem…", submitLabel: "Diagnose", onSubmit: (t) => { restart(); if (t.length >= 10) void startIntake(t); } });
     } else {
       onIsland({ ...base, status: "running", label: phase === "loading" ? "Intake agent is writing questions…" : lastLog, progress: phase === "running" ? { done: agentsDone, total: DIAGNOSE_AGENTS.length } : undefined, placeholder: "", submitLabel: "" });
     }
     // The handlers only depend on the state listed here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, problem, questions, answers, report, lastLog, agentsDone, userId]);
+  }, [phase, problem, questions, answers, report, lastLog, agentsDone, userId, current?.n]);
 
   return (
     <>
@@ -208,15 +220,30 @@ export function DiagnoseMode({ userId, onDone, onIsland, anchorRef }: {
         )}
         {error && <p role="alert" className="mt-2 text-sm text-bad">{error}</p>}
         {phase === "done" && (
-          <button onClick={restart} className="mt-4 rounded-lg border border-line px-3 py-2 text-sm hover:border-accent">
-            Diagnose another problem
-          </button>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button onClick={() => rediagnose(problem)} className="rounded-lg border border-line px-3 py-2 text-sm hover:border-accent">
+              ↻ Same problem, different answers
+            </button>
+            <button onClick={restart} className="rounded-lg border border-line px-3 py-2 text-sm hover:border-accent">
+              Diagnose another problem
+            </button>
+          </div>
         )}
       </section>
 
       <div className="mt-8 space-y-5">
-        {(phase === "running" || report) && <AgentProgress agents={DIAGNOSE_AGENTS} statuses={statuses} finished={phase === "done"} />}
-        {report && <DiagnosisView report={report} userId={userId} onReminders={onDone} />}
+        <CaseBar
+          tabs={cases.map((c) => ({ id: c.id, n: c.n, title: c.data.report.input.problem }))}
+          selected={comparing ? "compare" : current?.id ?? null}
+          onSelect={setSelected}
+          onRemove={(id) => { remove(id); if (selected === id) setSelected(null); }}
+          running={phase === "running"}
+        />
+        {phase === "running" && <AgentProgress agents={DIAGNOSE_AGENTS} statuses={statuses} />}
+        {phase !== "running" && comparing && <DiagnoseCompare cases={cases} />}
+        {phase !== "running" && !comparing && current && (
+          <DiagnosisView key={current.id} report={current.data.report} userId={userId} onReminders={onDone} />
+        )}
       </div>
     </>
   );

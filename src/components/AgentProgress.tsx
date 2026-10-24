@@ -1,5 +1,6 @@
 "use client";
 
+import { WaitingQuote } from "@/components/WaitingQuote";
 import type { AgentId } from "@/lib/types";
 
 type AgentInfo = { id: AgentId; name: string; role: string };
@@ -42,6 +43,9 @@ export function AgentProgress({ agents, statuses, finished = false }: { agents: 
   return (
     <section aria-label="Agent progress" className="rounded-2xl border border-line bg-surface p-5">
       <h2 className="mb-4 text-sm font-medium text-muted">Your agent team is working</h2>
+      <div className="mb-4">
+        <WaitingQuote />
+      </div>
       <ol className={`grid gap-3 sm:grid-cols-2 ${agents.length > 2 ? "lg:grid-cols-3" : ""}`}>
         {agents.map((agent) => {
           const s = statuses[agent.id] ?? { status: "waiting" };
