@@ -2,6 +2,8 @@
 
 **Discover your business potential with an open-source team of AI agents.**
 
+### 👉 [Try the live demo: foundry-hellohammadi.vercel.app](https://foundry-hellohammadi.vercel.app)
+
 Foundry helps founders at both ends of the journey:
 
 - **🚀 Start a business:** share an idea. Agents name it, check whether the domain and social handles are free, find your unique selling point and emotional hook, and plan your launch, social media and automations.
