@@ -1,6 +1,7 @@
 "use client";
 
 import { FoundryLogo, GitHubIcon, PoweredByDNotifier, REPO_URL } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState } from "react";
 
 type Mode = "idea" | "diagnose";
@@ -37,25 +38,29 @@ export function Navbar({ onMode }: { onMode: (mode: Mode) => void }) {
 
         <div className="hidden items-center gap-2 md:flex">
           <PoweredByDNotifier compact />
+          <ThemeToggle />
           <a href={REPO_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-ink px-3.5 py-1.5 text-sm font-medium text-bg hover:opacity-90">
             <GitHubIcon /> GitHub
           </a>
         </div>
 
-        <button
-          className="rounded-lg border border-line p-2 md:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          onClick={() => setOpen((o) => !o)}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-            {open ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
-          </svg>
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <button
+            className="rounded-lg border border-line p-2"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((o) => !o)}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              {open ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
+          </button>
+        </div>
       </nav>
 
       {open && (
-        <div className="border-t border-line bg-bg px-4 pb-4 md:hidden">
+        <div className="border-t border-line bg-surface-2 px-4 pb-4 md:hidden">
           {links.map((l) => (
             <a key={l.label} href={l.href} onClick={() => go(l.mode)} className="block border-b border-line py-3 text-ink">
               {l.label}

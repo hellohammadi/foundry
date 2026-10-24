@@ -1,13 +1,14 @@
 "use client";
 
 import { DiagnoseMode } from "@/components/DiagnoseMode";
+import { DynamicIsland, type IslandData } from "@/components/DynamicIsland";
 import { Footer } from "@/components/Footer";
 import { IdeaMode } from "@/components/IdeaMode";
 import { Inbox } from "@/components/Inbox";
 import { FoundryMark, PoweredByDNotifier } from "@/components/Logo";
 import { Navbar } from "@/components/Navbar";
 import { useUserId } from "@/lib/client";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type Mode = "idea" | "diagnose";
 
@@ -53,18 +54,56 @@ export default function Home() {
   const userId = useUserId();
   const refresh = () => setRefreshKey((k) => k + 1);
 
+  // Dynamic island: each mode reports its prompt/progress; the island shows once
+  // the active mode's prompt card has scrolled up behind the navbar.
+  const [islands, setIslands] = useState<Partial<Record<Mode, IslandData>>>({});
+  const [pastPrompt, setPastPrompt] = useState(false);
+  const ideaAnchor = useRef<HTMLFormElement>(null);
+  const diagnoseAnchor = useRef<HTMLElement>(null);
+  const onIdeaIsland = useCallback((d: IslandData) => setIslands((s) => ({ ...s, idea: d })), []);
+  const onDiagnoseIsland = useCallback((d: IslandData) => setIslands((s) => ({ ...s, diagnose: d })), []);
+
+  useEffect(() => {
+    let frame = 0;
+    const check = () => {
+      frame = 0;
+      const anchor = mode === "idea" ? ideaAnchor.current : diagnoseAnchor.current;
+      setPastPrompt(anchor ? anchor.getBoundingClientRect().bottom < 88 : false);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(check);
+    };
+    check();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, [mode]);
+
+  const jumpToPrompt = () => {
+    const anchor = mode === "idea" ? ideaAnchor.current : diagnoseAnchor.current;
+    if (!anchor) return;
+    window.scrollTo({ top: anchor.getBoundingClientRect().top + window.scrollY - 96, behavior: "smooth" });
+    setTimeout(() => anchor.querySelector<HTMLElement>("textarea, input")?.focus({ preventScroll: true }), 500);
+  };
+
   const choose = (m: Mode) => {
     setMode(m);
     document.getElementById("app")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <div id="top">
+    <div id="top" className="overflow-x-clip">
       <Navbar onMode={setMode} />
+      <DynamicIsland data={islands[mode] ?? null} visible={pastPrompt} onJump={jumpToPrompt} />
 
       <main className="mx-auto max-w-6xl px-4">
         {/* Hero */}
-        <section className="py-14 text-center sm:py-20">
+        <section className="relative py-14 text-center sm:py-20">
+          <div className="hero-glow pointer-events-none absolute inset-x-[-50vw] -top-16 bottom-0 -z-10" aria-hidden="true" />
           <div className="mb-6 flex items-center justify-center gap-3">
             <FoundryMark size={56} />
             <span className="text-2xl text-muted" aria-hidden="true">×</span>
@@ -74,14 +113,14 @@ export default function Home() {
             Open source · Hacktoberfest 2026 · MIT licensed
           </p>
           <h1 className="mx-auto max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl">
-            Discover your <span className="text-accent">business potential</span>
+            Discover your <span className="text-gradient">business potential</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-muted">
             A team of AI agents that helps founders at both ends of the journey: turning an idea into a launch plan, or finding the
             root cause of what&apos;s holding a business back.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <button onClick={() => choose("idea")} className="rounded-xl bg-accent px-6 py-3 font-medium text-accent-ink transition-opacity hover:opacity-90">
+            <button onClick={() => choose("idea")} className="rounded-xl btn-primary px-6 py-3 font-medium transition-opacity hover:opacity-90">
               Start a business
             </button>
             <button onClick={() => choose("diagnose")} className="rounded-xl border border-line bg-surface px-6 py-3 font-medium transition-colors hover:border-accent">
@@ -108,8 +147,8 @@ export default function Home() {
           </div>
 
           {/* Both modes stay mounted so switching tabs doesn't lose progress. */}
-          <div hidden={mode !== "idea"}><IdeaMode userId={userId} onDone={refresh} /></div>
-          <div hidden={mode !== "diagnose"}><DiagnoseMode userId={userId} onDone={refresh} /></div>
+          <div hidden={mode !== "idea"}><IdeaMode userId={userId} onDone={refresh} onIsland={onIdeaIsland} anchorRef={ideaAnchor} /></div>
+          <div hidden={mode !== "diagnose"}><DiagnoseMode userId={userId} onDone={refresh} onIsland={onDiagnoseIsland} anchorRef={diagnoseAnchor} /></div>
         </section>
 
         {/* How it works */}
@@ -120,7 +159,7 @@ export default function Home() {
           </div>
           <div className="grid gap-5 md:grid-cols-2">
             {FLOWS.map((flow) => (
-              <div key={flow.mode} className="rounded-3xl border border-line bg-surface p-6">
+              <div key={flow.mode} className="rounded-3xl border border-line bg-surface shadow-card p-6">
                 <h3 className="mb-5 text-lg font-semibold">{flow.title}</h3>
                 <ol className="space-y-4">
                   {flow.steps.map((s, i) => (
@@ -138,14 +177,14 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="mt-5 rounded-3xl border border-line bg-surface p-6">
+          <div className="mt-5 rounded-3xl border border-line bg-surface shadow-card p-6">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <h3 className="text-lg font-semibold">Built end to end on DNotifier</h3>
               <PoweredByDNotifier />
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
               {DNOTIFIER_FEATURES.map((f) => (
-                <div key={f.name} className="rounded-2xl border border-line bg-bg p-4">
+                <div key={f.name} className="rounded-2xl border border-line bg-surface-2 p-4">
                   <p className="font-medium">{f.name}</p>
                   <p className="mt-1 text-sm text-muted">{f.text}</p>
                 </div>

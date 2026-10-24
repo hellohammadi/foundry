@@ -1,10 +1,11 @@
 "use client";
 
 import { AgentProgress, applyAgentEvent, IDEA_AGENTS, initialStatuses } from "@/components/AgentProgress";
+import type { IslandData } from "@/components/DynamicIsland";
 import { ReportView } from "@/components/ReportView";
 import { postStream } from "@/lib/client";
 import type { Report } from "@/lib/types";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const EXAMPLES = [
   "A subscription box of home-brewed Indian chai blends for office workers",
@@ -14,7 +15,12 @@ const EXAMPLES = [
 
 export const inputClass = "w-full rounded-xl border border-line bg-surface px-4 py-3 outline-none focus:border-accent";
 
-export function IdeaMode({ userId, onDone }: { userId: string | null; onDone: () => void }) {
+export function IdeaMode({ userId, onDone, onIsland, anchorRef }: {
+  userId: string | null;
+  onDone: () => void;
+  onIsland: (data: IslandData) => void;
+  anchorRef: React.Ref<HTMLFormElement>;
+}) {
   const [idea, setIdea] = useState("");
   const [audience, setAudience] = useState("");
   const [location, setLocation] = useState("");
@@ -23,24 +29,34 @@ export function IdeaMode({ userId, onDone }: { userId: string | null; onDone: ()
   const [statuses, setStatuses] = useState(() => initialStatuses(IDEA_AGENTS));
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lastLog, setLastLog] = useState<string | undefined>();
   const resultsRef = useRef<HTMLDivElement>(null);
 
   async function analyze(e: React.FormEvent) {
     e.preventDefault();
-    if (idea.trim().length < 10) {
+    await run(idea);
+  }
+
+  async function run(text: string) {
+    if (text.trim().length < 10) {
       setError("Describe your idea in at least 10 characters.");
       return;
     }
+    setIdea(text);
+    setLastLog(undefined);
     setRunning(true);
     setError(null);
     setReport(null);
     setStatuses(initialStatuses(IDEA_AGENTS));
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     try {
-      await postStream("/api/analyze", { idea, audience, location, budget, userId }, (event) => {
+      await postStream("/api/analyze", { idea: text, audience, location, budget, userId }, (event) => {
         if (event.type === "report") setReport(event.report);
         else if (event.type === "error") setError(event.message);
-        else setStatuses((s) => applyAgentEvent(s, event));
+        else {
+          if (event.type === "log") setLastLog(event.message);
+          setStatuses((s) => applyAgentEvent(s, event));
+        }
       });
       onDone();
     } catch (err) {
@@ -50,9 +66,28 @@ export function IdeaMode({ userId, onDone }: { userId: string | null; onDone: ()
     }
   }
 
+  // Mirror the prompt and progress in the dynamic island.
+  const done = Object.values(statuses).filter((st) => st?.status === "done").length;
+  useEffect(() => {
+    onIsland({
+      mode: "idea",
+      prompt: idea.trim(),
+      status: running ? "running" : report ? "done" : "idle",
+      progress: { done, total: IDEA_AGENTS.length },
+      label: lastLog,
+      result: report ? `${report.brand.recommended} · ${report.potential.score}/100 potential` : undefined,
+      placeholder: "Describe your business idea…",
+      submitLabel: report ? "Run again" : "Discover",
+      onSubmit: running ? undefined : (text) => void run(text),
+      draft: idea,
+    });
+    // run() only changes when inputs change, which are already listed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idea, running, report, done, lastLog, audience, location, budget, userId]);
+
   return (
     <>
-      <form onSubmit={analyze} className="space-y-4 rounded-2xl border border-line bg-surface p-5 sm:p-6">
+      <form ref={anchorRef} onSubmit={analyze} className="space-y-4 rounded-2xl border border-line bg-surface p-5 shadow-card sm:p-6">
         <label className="block">
           <span className="mb-2 block font-medium">What&apos;s your business idea?</span>
           <textarea
@@ -79,7 +114,7 @@ export function IdeaMode({ userId, onDone }: { userId: string | null; onDone: ()
         <button
           type="submit"
           disabled={running}
-          className="w-full rounded-xl bg-accent px-5 py-3 font-medium text-accent-ink transition-opacity hover:opacity-90 disabled:opacity-60 sm:w-auto"
+          className="w-full rounded-xl btn-primary px-5 py-3 font-medium transition-opacity hover:opacity-90 disabled:opacity-60 sm:w-auto"
         >
           {running ? "Agents at work…" : "Discover my potential"}
         </button>

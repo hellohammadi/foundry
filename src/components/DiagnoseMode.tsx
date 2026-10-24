@@ -2,6 +2,7 @@
 
 import { AgentProgress, applyAgentEvent, DIAGNOSE_AGENTS, initialStatuses } from "@/components/AgentProgress";
 import { DiagnosisView } from "@/components/DiagnosisView";
+import type { IslandData } from "@/components/DynamicIsland";
 import { inputClass } from "@/components/IdeaMode";
 import { postStream } from "@/lib/client";
 import type { DiagnosisReport, QA } from "@/lib/types";
@@ -18,7 +19,12 @@ type Phase = "problem" | "loading" | "asking" | "running" | "done";
 
 const GREETING = "Hi! I'm Foundry's Intake agent. What's the biggest problem in your business right now?";
 
-export function DiagnoseMode({ userId, onDone }: { userId: string | null; onDone: () => void }) {
+export function DiagnoseMode({ userId, onDone, onIsland, anchorRef }: {
+  userId: string | null;
+  onDone: () => void;
+  onIsland: (data: IslandData) => void;
+  anchorRef: React.Ref<HTMLElement>;
+}) {
   const [messages, setMessages] = useState<Message[]>([{ from: "agent", text: GREETING }]);
   const [phase, setPhase] = useState<Phase>("problem");
   const [problem, setProblem] = useState("");
@@ -28,10 +34,14 @@ export function DiagnoseMode({ userId, onDone }: { userId: string | null; onDone
   const [error, setError] = useState<string | null>(null);
   const [statuses, setStatuses] = useState(() => initialStatuses(DIAGNOSE_AGENTS));
   const [report, setReport] = useState<DiagnosisReport | null>(null);
-  const chatEnd = useRef<HTMLDivElement>(null);
+  const [lastLog, setLastLog] = useState<string | undefined>();
+  const chatBox = useRef<HTMLDivElement>(null);
 
+  // Keep the newest message in view inside the chat box only (never scroll the page,
+  // so answering from the dynamic island doesn't jump you back up).
   useEffect(() => {
-    chatEnd.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const box = chatBox.current;
+    if (box) box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
   }, [messages, phase]);
 
   const say = (from: Message["from"], text: string) => setMessages((m) => [...m, { from, text }]);
@@ -66,7 +76,10 @@ export function DiagnoseMode({ userId, onDone }: { userId: string | null; onDone
       await postStream("/api/diagnose", { problem, answers: allAnswers, userId }, (event) => {
         if (event.type === "diagnosis") setReport(event.report);
         else if (event.type === "error") setError(event.message);
-        else setStatuses((s) => applyAgentEvent(s, event));
+        else {
+          if (event.type === "log") setLastLog(event.message);
+          setStatuses((s) => applyAgentEvent(s, event));
+        }
       });
       setPhase("done");
       onDone();
@@ -117,15 +130,41 @@ export function DiagnoseMode({ userId, onDone }: { userId: string | null; onDone
 
   const canType = phase === "problem" || phase === "asking";
 
+  // Mirror the conversation in the dynamic island, and let it answer questions too.
+  const agentsDone = Object.values(statuses).filter((st) => st?.status === "done").length;
+  useEffect(() => {
+    const base = { mode: "diagnose" as const, prompt: problem, draft: "" };
+    if (phase === "problem") {
+      onIsland({ ...base, status: "idle", placeholder: "Describe your business problem…", submitLabel: "Start", draft: problem, onSubmit: (t) => t.length >= 10 && void startIntake(t) });
+    } else if (phase === "asking") {
+      onIsland({
+        ...base,
+        status: "asking",
+        label: questions[answers.length],
+        progress: { done: answers.length, total: questions.length },
+        placeholder: "Your answer…",
+        submitLabel: "Send",
+        onSubmit: (t) => answer(t),
+        onSkip: () => answer(""),
+      });
+    } else if (phase === "done") {
+      onIsland({ ...base, status: "done", result: report ? `Root cause: ${report.diagnosis.rootCause}` : undefined, placeholder: "Describe another problem…", submitLabel: "Diagnose", onSubmit: (t) => { restart(); if (t.length >= 10) void startIntake(t); } });
+    } else {
+      onIsland({ ...base, status: "running", label: phase === "loading" ? "Intake agent is writing questions…" : lastLog, progress: phase === "running" ? { done: agentsDone, total: DIAGNOSE_AGENTS.length } : undefined, placeholder: "", submitLabel: "" });
+    }
+    // The handlers only depend on the state listed here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, problem, questions, answers, report, lastLog, agentsDone, userId]);
+
   return (
     <>
-      <section aria-label="Intake chat" className="rounded-2xl border border-line bg-surface p-4 sm:p-6">
-        <div className="max-h-[28rem] space-y-3 overflow-y-auto pr-1" aria-live="polite">
+      <section ref={anchorRef} aria-label="Intake chat" className="rounded-2xl border border-line bg-surface p-4 shadow-card sm:p-6">
+        <div ref={chatBox} className="max-h-[28rem] space-y-3 overflow-y-auto pr-1" aria-live="polite">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.from === "you" ? "justify-end" : "justify-start"}`}>
               <p
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
-                  m.from === "you" ? "rounded-br-sm bg-accent text-accent-ink" : "rounded-bl-sm border border-line bg-bg"
+                  m.from === "you" ? "rounded-br-sm bg-accent text-accent-ink" : "rounded-bl-sm border border-line bg-surface-2"
                 }`}
               >
                 {m.text}
@@ -136,7 +175,6 @@ export function DiagnoseMode({ userId, onDone }: { userId: string | null; onDone
           {phase === "asking" && (
             <p className="text-xs text-muted">Question {answers.length + 1} of {questions.length}</p>
           )}
-          <div ref={chatEnd} />
         </div>
 
         {phase === "problem" && (
@@ -163,7 +201,7 @@ export function DiagnoseMode({ userId, onDone }: { userId: string | null; onDone
                 Skip
               </button>
             )}
-            <button type="submit" className="shrink-0 rounded-xl bg-accent px-5 font-medium text-accent-ink hover:opacity-90">
+            <button type="submit" className="shrink-0 rounded-xl btn-primary px-5 font-medium hover:opacity-90">
               Send
             </button>
           </form>

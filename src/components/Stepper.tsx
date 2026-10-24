@@ -33,7 +33,7 @@ export function Stepper({ steps, heading }: { steps: Step[]; heading: React.Reac
   const progress = ((active + 1) / steps.length) * 100;
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-line bg-surface">
+    <section className="overflow-hidden rounded-3xl border border-line bg-surface shadow-card">
       <div className="border-b border-line p-5 sm:p-6">{heading}</div>
 
       <div className="grid md:grid-cols-[260px_1fr]">
@@ -58,7 +58,7 @@ export function Stepper({ steps, heading }: { steps: Step[]; heading: React.Reac
                 tabIndex={isActive ? 0 : -1}
                 onClick={() => select(i)}
                 className={`flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors md:w-full ${
-                  isActive ? "bg-accent-soft" : "hover:bg-bg"
+                  isActive ? "bg-accent-soft" : "hover:bg-surface-2"
                 }`}
               >
                 <span
@@ -103,7 +103,7 @@ export function Stepper({ steps, heading }: { steps: Step[]; heading: React.Reac
             <button
               onClick={() => select(active + 1, true)}
               disabled={active === steps.length - 1}
-              className="rounded-xl bg-accent px-4 py-2 text-sm font-medium text-accent-ink transition-opacity hover:opacity-90 disabled:invisible"
+              className="rounded-xl btn-primary px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:invisible"
             >
               {steps[active + 1]?.title ?? "Next"} →
             </button>
@@ -117,7 +117,7 @@ export function Stepper({ steps, heading }: { steps: Step[]; heading: React.Reac
 // Shared building blocks for step content.
 export function Panel({ title, children, tone = "plain" }: { title?: string; children: React.ReactNode; tone?: "plain" | "accent" }) {
   return (
-    <div className={`rounded-2xl border p-5 ${tone === "accent" ? "border-accent bg-accent-soft" : "border-line bg-bg"}`}>
+    <div className={`rounded-2xl border p-5 ${tone === "accent" ? "border-accent bg-accent-soft" : "border-line bg-surface-2"}`}>
       {title && <h3 className="mb-3 font-semibold">{title}</h3>}
       {children}
     </div>

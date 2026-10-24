@@ -189,7 +189,7 @@ export function DiagnosisView({ report, userId, onReminders }: { report: Diagnos
               <button
                 onClick={sendReminders}
                 disabled={!userId || reminders === "sending" || reminders === "sent"}
-                className="rounded-xl bg-accent px-4 py-2 text-sm font-medium text-accent-ink disabled:opacity-60"
+                className="rounded-xl btn-primary px-4 py-2 text-sm font-medium disabled:opacity-60"
               >
                 {reminders === "sent" ? "Reminders set ✓" : reminders === "sending" ? "Setting…" : "Send me weekly reminders"}
               </button>

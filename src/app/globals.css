@@ -1,57 +1,132 @@
 @import "tailwindcss";
 
-:root {
-  --bg: #faf8f5;
+/* Colour tokens. Light is the default; dark applies from the system setting
+   unless the visitor picked a theme (data-theme on <html>, set before paint). */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f8f6f3;
   --surface: #ffffff;
-  --line: #e8e2d9;
-  --ink: #1c1917;
-  --muted: #78716c;
-  --accent: #c2410c;
-  --accent-soft: #fff1e6;
+  --surface-2: #f4f0ea;
+  --line: #e7e0d6;
+  --ink: #17130f;
+  --muted: #6b6259;
+  --accent: #c8460e;
+  --accent-2: #f59e0b;
+  --accent-soft: #fff0e5;
   --accent-ink: #ffffff;
   --ok: #15803d;
-  --ok-soft: #e8f6ec;
-  --bad: #b91c1c;
+  --ok-soft: #e6f5eb;
+  --bad: #c0262d;
   --bad-soft: #fdecec;
+  --glow: rgba(234, 88, 12, 0.14);
+  --shadow: 0 1px 2px rgba(23, 19, 15, 0.04), 0 10px 30px -16px rgba(23, 19, 15, 0.18);
+  --island: #0d0b09;
+  --island-ink: #f7f2ec;
+  --island-muted: #a59c92;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #12100e;
-    --surface: #1c1917;
-    --line: #2f2a26;
-    --ink: #f5f0ea;
-    --muted: #a8a29e;
-    --accent: #fb923c;
-    --accent-soft: #2a1a0f;
-    --accent-ink: #1c1917;
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0b0908;
+    --surface: #15120f;
+    --surface-2: #1d1915;
+    --line: #2b251f;
+    --ink: #f6f1ea;
+    --muted: #a69d93;
+    --accent: #fb8a3c;
+    --accent-2: #fbbf24;
+    --accent-soft: #2a190d;
+    --accent-ink: #1a0e05;
     --ok: #4ade80;
-    --ok-soft: #12261a;
+    --ok-soft: #10261a;
     --bad: #f87171;
     --bad-soft: #2a1414;
+    --glow: rgba(251, 138, 60, 0.16);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 36px -18px rgba(0, 0, 0, 0.7);
+    --island: #000000;
+    --island-ink: #f7f2ec;
+    --island-muted: #9a9187;
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b0908;
+  --surface: #15120f;
+  --surface-2: #1d1915;
+  --line: #2b251f;
+  --ink: #f6f1ea;
+  --muted: #a69d93;
+  --accent: #fb8a3c;
+  --accent-2: #fbbf24;
+  --accent-soft: #2a190d;
+  --accent-ink: #1a0e05;
+  --ok: #4ade80;
+  --ok-soft: #10261a;
+  --bad: #f87171;
+  --bad-soft: #2a1414;
+  --glow: rgba(251, 138, 60, 0.16);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 36px -18px rgba(0, 0, 0, 0.7);
+  --island: #000000;
+  --island-ink: #f7f2ec;
+  --island-muted: #9a9187;
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-line: var(--line);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
   --color-accent-soft: var(--accent-soft);
   --color-accent-ink: var(--accent-ink);
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
   --color-bad: var(--bad);
   --color-bad-soft: var(--bad-soft);
+  --color-island: var(--island);
+  --color-island-ink: var(--island-ink);
+  --color-island-muted: var(--island-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+/* The theme toggle drives Tailwind's dark: variant too. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+.shadow-card {
+  box-shadow: var(--shadow);
+}
+
+/* Primary buttons: a warm gradient that works in both themes. */
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, var(--accent-2)));
+  color: var(--accent-ink);
+  box-shadow: 0 8px 20px -10px var(--accent);
+}
+
+.hero-glow {
+  background:
+    radial-gradient(60% 50% at 50% 0%, var(--glow), transparent 70%),
+    radial-gradient(40% 30% at 85% 10%, color-mix(in srgb, var(--accent-2) 12%, transparent), transparent 70%);
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 body {
   background: var(--bg);
   color: var(--ink);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 @keyframes pulse-dot {

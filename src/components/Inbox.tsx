@@ -33,7 +33,7 @@ export function Inbox({ userId, refreshKey }: { userId: string | null; refreshKe
   const reports = items.filter((i) => i.kind === "report");
 
   return (
-    <section aria-label="History and reminders" className="mt-16 rounded-3xl border border-line bg-surface p-5 sm:p-6">
+    <section aria-label="History and reminders" className="mt-16 rounded-3xl border border-line bg-surface shadow-card p-5 sm:p-6">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">Your history &amp; reminders</h2>
         <button onClick={load} className="text-sm text-accent">Refresh</button>

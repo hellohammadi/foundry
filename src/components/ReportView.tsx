@@ -15,7 +15,7 @@ function Badge({ status, manual }: { status: Availability; manual?: boolean }) {
 
 function NameCard({ n, top }: { n: NameCandidate; top: boolean }) {
   return (
-    <div className={`rounded-2xl border p-4 ${top ? "border-accent bg-accent-soft" : "border-line bg-bg"}`}>
+    <div className={`rounded-2xl border p-4 ${top ? "border-accent bg-accent-soft" : "border-line bg-surface-2"}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="flex items-baseline gap-2">
           <span className="text-lg font-semibold">{n.name}</span>
@@ -203,7 +203,7 @@ export function ReportView({ report }: { report: Report }) {
           </Panel>
           <div className="grid gap-2 sm:grid-cols-2">
             {tech.stack.map((s) => (
-              <div key={s.layer} className="flex justify-between gap-3 rounded-xl border border-line bg-bg p-3 text-sm">
+              <div key={s.layer} className="flex justify-between gap-3 rounded-xl border border-line bg-surface-2 p-3 text-sm">
                 <span><span className="text-muted">{s.layer}:</span> {s.tool}</span>
                 <span className="shrink-0 text-muted">{s.cost}</span>
               </div>
